@@ -23,8 +23,18 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Dicoding Submission Restaurant App',
-      theme: theme.light(),
-      darkTheme: theme.dark(),
+      theme: theme.light().copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: themeProvider.seedColor,
+          brightness: Brightness.light,
+        ),
+      ),
+      darkTheme: theme.dark().copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: themeProvider.seedColor,
+          brightness: Brightness.dark,
+        ),
+      ),
       themeMode: themeProvider.themeMode,
       initialRoute: '/',
       routes: {

@@ -3,6 +3,7 @@ import 'package:restaurant/models/restaurant-detail-model.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/proxys/restaurant-proxy.dart';
 
+import '../components/menu-items.dart';
 import '../constants.dart';
 
 class DetailPage extends StatefulWidget {
@@ -122,47 +123,26 @@ class _DetailPageState extends State<DetailPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-
                       _buildInfoChip(context, Icons.home_rounded, data.address, colorScheme.primary),
-
                       const SizedBox(height: 16),
-
                       Text("About", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-
                       const SizedBox(height: 8),
-
                       Text(data.description, style: textTheme.bodyMedium, textAlign: TextAlign.justify),
-
                       const SizedBox(height: 16),
-
                       Divider(color: colorScheme.outlineVariant),
-
                       const SizedBox(height: 16),
-
                       Text("Menus", style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-
                       const SizedBox(height: 16),
-
                       Text("Foods", style: textTheme.titleMedium),
-
                       const SizedBox(height: 8),
-
                       _buildHorizontalMenu(data.menus.foods),
-
                       const SizedBox(height: 16),
-
                       Text("Drinks", style: textTheme.titleMedium),
-
                       const SizedBox(height: 8),
-
                       _buildHorizontalMenu(data.menus.drinks),
-
                       const SizedBox(height: 16),
-
                       Divider(color: colorScheme.outlineVariant),
-
                       const SizedBox(height: 16),
-
                       Card(
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -261,11 +241,8 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
                       Text("Customer Reviews", style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -275,7 +252,6 @@ class _DetailPageState extends State<DetailPage> {
                           return _buildReviewCard(context, review);
                         },
                       ),
-
                       const SizedBox(height: 32),
                     ],
                   ),
@@ -319,7 +295,7 @@ class _DetailPageState extends State<DetailPage> {
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
         itemBuilder: (context, index) {
-          return MenuItem(name: items[index].name);
+          return MenuItems(name: items[index].name);
         },
       ),
     );
@@ -366,36 +342,6 @@ class _DetailPageState extends State<DetailPage> {
               style: textTheme.bodyMedium?.copyWith(fontStyle: FontStyle.italic, color: colorScheme.onSurfaceVariant),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class MenuItem extends StatelessWidget {
-  final String name;
-  const MenuItem({super.key, required this.name});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final width = size.width;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      width: width * 0.4,
-      margin: const EdgeInsets.all(4),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outlineVariant, width: 1),
-      ),
-      child: Center(
-        child: Text(
-          name,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.w500, color: colorScheme.onSurface),
         ),
       ),
     );

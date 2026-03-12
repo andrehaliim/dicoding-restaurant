@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:restaurant/constants.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/proxys/restaurant-proxy.dart';
-import '../providers/theme-provider.dart';
+import '../components/setting-drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,6 +26,7 @@ class _HomePageState extends State<HomePage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      endDrawer: const SettingDrawer(),
       body: FutureBuilder<List<RestaurantListModel>>(
         future: future,
         builder: (BuildContext context, snapshot) {
@@ -36,15 +36,17 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Restaurant', style: TextStyle(fontWeight: FontWeight.bold)),
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/search');
-                    },
+                    icon: const Icon(Icons.search),
+                    onPressed: () => Navigator.pushNamed(context, '/search'),
                   ),
-                  ThemeIconSwitcher(),
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: const Icon(Icons.settings),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    ),
+                  ),
                 ],
               ),
-
               if (snapshot.connectionState == ConnectionState.waiting)
                 const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
               else if (snapshot.hasError)
@@ -85,7 +87,6 @@ class _HomePageState extends State<HomePage> {
                                         const SizedBox(width: 120, height: 100, child: Icon(Icons.broken_image)),
                                   ),
                                 ),
-
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
@@ -138,18 +139,4 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class ThemeIconSwitcher extends StatelessWidget {
-  const ThemeIconSwitcher({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
-    return IconButton(
-      icon: Icon(themeProvider.isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
-      onPressed: () {
-        themeProvider.toggleTheme(!themeProvider.isDarkMode);
-      },
-    );
-  }
-}
