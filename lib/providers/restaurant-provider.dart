@@ -12,14 +12,6 @@ class RestaurantProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  RestaurantDetailModel? _detail;
-  bool _isDetailLoading = false;
-  String? _detailError;
-
-  RestaurantDetailModel? get detail => _detail;
-  bool get isDetailLoading => _isDetailLoading;
-  String? get detailError => _detailError;
-
   Future<void> fetchRestaurants(BuildContext context) async {
     _isLoading = true;
     notifyListeners();
@@ -34,6 +26,14 @@ class RestaurantProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  RestaurantDetailModel? _detail;
+  bool _isDetailLoading = false;
+  String? _detailError;
+
+  RestaurantDetailModel? get detail => _detail;
+  bool get isDetailLoading => _isDetailLoading;
+  String? get detailError => _detailError;
+
   Future<void> fetchRestaurantDetail(String id) async {
     _isDetailLoading = true;
     notifyListeners();
@@ -45,6 +45,37 @@ class RestaurantProvider extends ChangeNotifier {
     }
 
     _isDetailLoading = false;
+    notifyListeners();
+  }
+
+  List<RestaurantListModel> _searchResults = [];
+  bool _isSearching = false;
+  String? _searchError;
+
+  List<RestaurantListModel> get searchResults => _searchResults;
+  bool get isSearching => _isSearching;
+  String? get searchError => _searchError;
+
+  Future<void> searchRestaurants(String query) async {
+    _isSearching = true;
+    _searchError = null;
+    notifyListeners();
+
+    try {
+      _searchResults = await RestaurantProxy().searchRestaurant(query);
+    } catch (e) {
+      _searchError = e.toString();
+    }
+
+    _isSearching = false;
+    notifyListeners();
+  }
+
+  bool _hasSearched = false;
+  bool get hasSearched => _hasSearched;
+
+  void setHasSearched(bool value) {
+    _hasSearched = value;
     notifyListeners();
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:restaurant/constants.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
-import 'package:restaurant/proxys/restaurant-proxy.dart';
+import 'package:restaurant/providers/restaurant-provider.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -12,16 +13,14 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
-  Future<List<RestaurantListModel>>? _searchFuture;
-  bool _hasSearched = false;
 
   void _onSearch() {
     final query = _searchController.text.trim();
+
     if (query.isNotEmpty) {
-      setState(() {
-        _hasSearched = true;
-        _searchFuture = RestaurantProxy().searchRestaurant(context, query);
-      });
+      context.read<RestaurantProvider>().setHasSearched(true);
+
+      context.read<RestaurantProvider>().searchRestaurants(query);
     }
   }
 
@@ -35,6 +34,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final provider = context.watch<RestaurantProvider>();
 
     return Scaffold(
       body: CustomScrollView(
@@ -56,8 +56,11 @@ class _SearchPageState extends State<SearchPage> {
                   decoration: InputDecoration(
                     hintText: 'Search restaurant name...',
                     prefixIcon: const Icon(Icons.search),
-                    suffixIcon: IconButton(icon: const Icon(Icons.send), onPressed: _onSearch),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
+                    suffixIcon:
+                    IconButton(icon: const Icon(Icons.send), onPressed: _onSearch),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
                     filled: true,
                     fillColor: colorScheme.surfaceContainerHighest,
                   ),
@@ -66,7 +69,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
 
-          if (!_hasSearched)
+          if (!provider.hasSearched)
             const SliverFillRemaining(
               child: Center(
                 child: Column(
@@ -80,30 +83,40 @@ class _SearchPageState extends State<SearchPage> {
               ),
             )
           else
-            FutureBuilder<List<RestaurantListModel>>(
-              future: _searchFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
+            Consumer<RestaurantProvider>(
+              builder: (context, provider, child) {
+
+                if (provider.isSearching) {
+                  return const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
                 }
 
-                if (snapshot.hasError) {
-                  return SliverFillRemaining(child: Center(child: Text('Error: ${snapshot.error}')));
+                if (provider.searchError != null) {
+                  return SliverFillRemaining(
+                    child: Center(child: Text(provider.searchError!)),
+                  );
                 }
 
-                final restaurants = snapshot.data ?? [];
+                final restaurants = provider.searchResults;
 
                 if (restaurants.isEmpty) {
-                  return const SliverFillRemaining(child: Center(child: Text('No restaurants found.')));
+                  return const SliverFillRemaining(
+                    child: Center(child: Text('No restaurants found.')),
+                  );
                 }
 
                 return SliverPadding(
                   padding: const EdgeInsets.all(16),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final data = restaurants[index];
-                      return _buildSearchItem(context, data, colorScheme, textTheme);
-                    }, childCount: restaurants.length),
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                        final data = restaurants[index];
+                        return _buildSearchItem(
+                            context, data, colorScheme, textTheme);
+                      },
+                      childCount: restaurants.length,
+                    ),
                   ),
                 );
               },

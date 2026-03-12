@@ -70,42 +70,28 @@ class RestaurantProxy {
     }
   }
 
-  Future<List<RestaurantListModel>> searchRestaurant(BuildContext context, String query) async {
+  Future<List<RestaurantListModel>> searchRestaurant(String query) async {
     String url = '$baseUrl/search?q=$query';
 
-    try {
-      var response = await http.get(Uri.parse(url));
+    var response = await http.get(Uri.parse(url));
 
-      ProxyLogger.log(
-        ProxyLogModel(
-          url: url,
-          params: null,
-          statusCode: response.statusCode,
-          response: response.body,
-          time: DateTime.now(),
-        ),
-      );
+    ProxyLogger.log(
+      ProxyLogModel(
+        url: url,
+        params: {"q": query},
+        statusCode: response.statusCode,
+        response: response.body,
+        time: DateTime.now(),
+      ),
+    );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> restaurantsJson = data['restaurants'];
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final List<dynamic> restaurantsJson = data['restaurants'];
 
-        return restaurantsJson.map((json) => RestaurantListModel.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to search restaurants: ${response.statusCode}');
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-      debugPrint('Error search restaurants: $e');
-      rethrow;
+      return restaurantsJson.map((json) => RestaurantListModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to search restaurants: ${response.statusCode}');
     }
   }
 
