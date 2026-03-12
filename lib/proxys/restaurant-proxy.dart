@@ -66,4 +66,38 @@ class RestaurantProxy {
       rethrow;
     }
   }
+
+  Future<List<CustomerReview>> sendReview(BuildContext context, String id, String name, String review) async {
+    String url = '$baseUrl/review';
+
+    var headers = {'Content-Type': 'application/json'};
+    var body = json.encode({"id": id, "name": name, "review": review});
+
+    try {
+      var response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+      ProxyLogger.log(
+        ProxyLogModel(
+          url: url,
+          params: {"id": id, "name": name, "review": review},
+          statusCode: response.statusCode,
+          response: response.body,
+          time: DateTime.now(),
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        final List<dynamic> reviewsJson = data['customerReviews'];
+
+        return reviewsJson.map((json) => CustomerReview.fromJson(json)).toList().reversed.toList();
+      } else {
+        throw Exception('Failed to post review: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Error sending review: $e');
+      rethrow;
+    }
+  }
 }

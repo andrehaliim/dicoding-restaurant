@@ -33,7 +33,9 @@ class RestaurantDetailModel {
     categories: List<Category>.from(json["categories"].map((x) => Category.fromJson(x))),
     menus: Menus.fromJson(json["menus"]),
     rating: json["rating"]?.toDouble(),
-    customerReviews: List<CustomerReview>.from(json["customerReviews"].map((x) => CustomerReview.fromJson(x))),
+    customerReviews: List<CustomerReview>.from(
+      json["customerReviews"].map((x) => CustomerReview.fromJson(x)),
+    ).reversed.toList(),
   );
 
   Map<String, dynamic> toJson() => {

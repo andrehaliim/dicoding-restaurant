@@ -14,11 +14,26 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   late Future<RestaurantDetailModel> future;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _reviewController = TextEditingController();
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _reviewFocusNode = FocusNode();
+
+  bool isSending = false;
 
   @override
   void initState() {
     future = RestaurantProxy().getRestaurantDetail(context, widget.id);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _reviewController.dispose();
+    _nameFocusNode.dispose();
+    _reviewFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -120,27 +135,158 @@ class _DetailPageState extends State<DetailPage> {
                       const SizedBox(height: 16),
 
                       Text("About", style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+
                       const SizedBox(height: 8),
+
                       Text(data.description,
                           style: textTheme.bodyMedium,
                           textAlign: TextAlign.justify
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+
                       Divider(color: colorScheme.outlineVariant),
+
                       const SizedBox(height: 16),
 
                       Text("Menus", style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
 
                       const SizedBox(height: 16),
+
                       Text("Foods", style: textTheme.titleMedium),
+
                       const SizedBox(height: 8),
+
                       _buildHorizontalMenu(data.menus.foods),
 
                       const SizedBox(height: 16),
+
                       Text("Drinks", style: textTheme.titleMedium),
+
                       const SizedBox(height: 8),
+
                       _buildHorizontalMenu(data.menus.drinks),
+
+                      const SizedBox(height: 16),
+
+                      Divider(color: colorScheme.outlineVariant),
+
+                      const SizedBox(height: 16),
+
+                      Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(color: colorScheme.outlineVariant),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        color: colorScheme.surfaceContainerHigh,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Share your experience",
+                                style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              TextField(
+                                controller: _nameController,
+                                focusNode: _nameFocusNode,
+                                decoration: const InputDecoration(
+                                  labelText: 'Name',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: _reviewController,
+                                focusNode: _reviewFocusNode,
+                                maxLines: 3,
+                                decoration: const InputDecoration(
+                                  labelText: 'Your Review',
+                                  border: OutlineInputBorder(),
+                                  alignLabelWithHint: true,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                child: FilledButton(
+                                  onPressed: isSending ? null : () async {
+                                    final name = _nameController.text;
+                                    final review = _reviewController.text;
+
+                                    if (name.isNotEmpty && review.isNotEmpty) {
+                                      loading();
+                                      _nameFocusNode.unfocus();
+                                      _reviewFocusNode.unfocus();
+                                      
+                                      try {
+                                        final updatedReviews = await RestaurantProxy().sendReview(context, data.id, name, review);
+
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Review posted successfully!')),
+                                          );
+                                          _nameController.clear();
+                                          _reviewController.clear();
+
+                                          setState(() {
+                                            data.customerReviews = updatedReviews;
+                                          });
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Error: $e')),
+                                          );
+                                        }
+                                      } finally {
+                                        if (mounted) loading();
+                                      }
+                                    }
+                                  },
+                                  child: isSending
+                                      ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                      : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.send, size: 18),
+                                      SizedBox(width: 8),
+                                      Text("Submit Review"),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Text(
+                          "Customer Reviews",
+                          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
+                      ),
+
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: data.customerReviews.length,
+                        itemBuilder: (context, index) {
+                          final review = data.customerReviews[index];
+                          return _buildReviewCard(context, review);
+                        },
+                      ),
 
                       const SizedBox(height: 32),
                     ],
@@ -151,6 +297,12 @@ class _DetailPageState extends State<DetailPage> {
           );        },
       ),
     );
+  }
+
+  void loading() {
+    setState(() {
+      isSending = !isSending;
+    });
   }
 
   Widget _buildInfoChip(BuildContext context, IconData icon, String label, Color iconColor) {
@@ -180,6 +332,63 @@ class _DetailPageState extends State<DetailPage> {
         itemBuilder: (context, index) {
           return MenuItem(name: items[index].name);
         },
+      ),
+    );
+  }
+
+  Widget _buildReviewCard(BuildContext context, dynamic review) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Card(    elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      color: colorScheme.surfaceContainerLow,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: colorScheme.primaryContainer,
+                  child: Text(
+                    review.name[0].toUpperCase(),
+                    style: TextStyle(color: colorScheme.onPrimaryContainer),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        review.name,
+                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        review.date,
+                        style: textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '"${review.review}"',
+              style: textTheme.bodyMedium?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
