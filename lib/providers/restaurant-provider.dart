@@ -78,4 +78,25 @@ class RestaurantProvider extends ChangeNotifier {
     _hasSearched = value;
     notifyListeners();
   }
+
+  bool _isSendingReview = false;
+  bool get isSendingReview => _isSendingReview;
+
+  Future<void> sendReview(BuildContext context, String id, String name, String review) async {
+    _isSendingReview = true;
+    notifyListeners();
+
+    try {
+      final updatedReviews = await RestaurantProxy().sendReview(context, id, name, review);
+
+      if (_detail != null) {
+        _detail!.customerReviews = updatedReviews;
+      }
+    } catch (e) {
+      rethrow;
+    }
+
+    _isSendingReview = false;
+    notifyListeners();
+  }
 }

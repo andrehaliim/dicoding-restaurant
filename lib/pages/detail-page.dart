@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/providers/restaurant-provider.dart';
-import 'package:restaurant/proxys/restaurant-proxy.dart';
 
 import '../components/menu-items.dart';
 import '../constants.dart';
@@ -20,8 +19,6 @@ class _DetailPageState extends State<DetailPage> {
   final TextEditingController _reviewController = TextEditingController();
   final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _reviewFocusNode = FocusNode();
-
-  bool isSending = false;
 
   @override
   void initState() {
@@ -103,9 +100,7 @@ class _DetailPageState extends State<DetailPage> {
 
               if (provider.detailError != null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(provider.detailError!)),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.detailError!)));
                 });
                 return SliverFillRemaining(child: Center(child: Text('Error: ${provider.detailError}')));
               }
@@ -186,7 +181,7 @@ class _DetailPageState extends State<DetailPage> {
                               SizedBox(
                                 width: double.infinity,
                                 child: FilledButton(
-                                  onPressed: isSending
+                                  onPressed: provider.isSendingReview
                                       ? null
                                       : () async {
                                           final name = _nameController.text;
@@ -194,17 +189,17 @@ class _DetailPageState extends State<DetailPage> {
 
                                           if (name.isEmpty || review.isEmpty) return;
 
-                                          loading();
                                           _nameFocusNode.unfocus();
                                           _reviewFocusNode.unfocus();
 
                                           try {
-                                            final updatedReviews = await RestaurantProxy().sendReview(
+                                            await context.read<RestaurantProvider>().sendReview(
                                               context,
                                               data.id,
                                               name,
                                               review,
                                             );
+
                                             if (mounted) {
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 const SnackBar(content: Text('Review posted successfully!')),
@@ -212,10 +207,6 @@ class _DetailPageState extends State<DetailPage> {
 
                                               _nameController.clear();
                                               _reviewController.clear();
-
-                                              setState(() {
-                                                data.customerReviews = updatedReviews;
-                                              });
                                             }
                                           } catch (e) {
                                             if (mounted) {
@@ -223,12 +214,9 @@ class _DetailPageState extends State<DetailPage> {
                                                 context,
                                               ).showSnackBar(SnackBar(content: Text('Error: $e')));
                                             }
-                                          } finally {
-                                            if (mounted) loading();
                                           }
                                         },
-
-                                  child: isSending
+                                  child: provider.isSendingReview
                                       ? const SizedBox(
                                           height: 20,
                                           width: 20,
@@ -269,12 +257,6 @@ class _DetailPageState extends State<DetailPage> {
         ],
       ),
     );
-  }
-
-  void loading() {
-    setState(() {
-      isSending = !isSending;
-    });
   }
 
   Widget _buildInfoChip(BuildContext context, IconData icon, String label, Color iconColor) {
