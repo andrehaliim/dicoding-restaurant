@@ -81,6 +81,7 @@ class _DetailPageState extends State<DetailPage> {
                           color: isCollapsed
                               ? colorScheme.onSurface
                               : Colors.white,
+                          fontWeight: FontWeight.bold
                         ),
                       ),
                       background: Stack(
@@ -221,7 +222,7 @@ class _DetailPageState extends State<DetailPage> {
                                       loading();
                                       _nameFocusNode.unfocus();
                                       _reviewFocusNode.unfocus();
-                                      
+
                                       try {
                                         final updatedReviews = await RestaurantProxy().sendReview(context, data.id, name, review);
 

@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
           return CustomScrollView(
             slivers: [
               SliverAppBar.medium(
-                title: const Text('Restaurant'),
+                title: const Text('Restaurant', style: TextStyle(fontWeight: FontWeight.bold),),
                 actions: const [
                   ThemeIconSwitcher(),
                 ],
