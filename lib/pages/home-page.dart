@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                               clipBehavior: Clip.antiAlias,
                               child: InkWell(
                                 onTap: () {
-                                  Navigator.pushNamed(context, '/detail', arguments: data.id);
+                                  Navigator.pushNamed(context, '/detail', arguments: data);
                                 },
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
