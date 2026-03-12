@@ -4,12 +4,25 @@ import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/pages/detail-page.dart';
 import 'package:restaurant/pages/home-page.dart';
 import 'package:restaurant/pages/search-page.dart';
+import 'package:restaurant/providers/restaurant-provider.dart';
 import 'package:restaurant/providers/theme-provider.dart';
 import 'package:restaurant/theme.dart';
 import 'package:restaurant/util.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(create: (_) => ThemeProvider(), child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RestaurantProvider(),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
