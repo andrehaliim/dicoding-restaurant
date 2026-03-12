@@ -3,17 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/pages/detail-page.dart';
 import 'package:restaurant/pages/home-page.dart';
+import 'package:restaurant/pages/search-page.dart';
 import 'package:restaurant/providers/theme-provider.dart';
 import 'package:restaurant/theme.dart';
 import 'package:restaurant/util.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(ChangeNotifierProvider(create: (_) => ThemeProvider(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -37,6 +33,7 @@ class MyApp extends StatelessWidget {
           final data = ModalRoute.of(context)!.settings.arguments as RestaurantListModel;
           return DetailPage(restaurant: data);
         },
+        '/search': (context) => const SearchPage(),
       },
     );
   }

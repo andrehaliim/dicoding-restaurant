@@ -30,9 +30,18 @@ class RestaurantProxy {
 
         return restaurantsJson.map((json) => RestaurantListModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load data: ${response.statusCode}');
+        throw Exception('Failed to load restaurants: ${response.statusCode}');
       }
     } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
       debugPrint('Error fetching restaurants: $e');
       rethrow;
     }
@@ -59,10 +68,58 @@ class RestaurantProxy {
 
         return RestaurantDetailModel.fromJson(data['restaurant']);
       } else {
-        throw Exception('Failed to load data: ${response.statusCode}');
+        throw Exception('Failed to fetch detail: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Error fetching restaurants: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+      debugPrint('Error fetching detail: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<RestaurantListModel>> searchRestaurant(BuildContext context, String query) async {
+    String url = '$baseUrl/search?q=$query';
+
+    try {
+      var response = await http.get(Uri.parse(url));
+
+      ProxyLogger.log(
+        ProxyLogModel(
+          url: url,
+          params: null,
+          statusCode: response.statusCode,
+          response: response.body,
+          time: DateTime.now(),
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> restaurantsJson = data['restaurants'];
+
+        return restaurantsJson.map((json) => RestaurantListModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to search restaurants: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+      debugPrint('Error search restaurants: $e');
       rethrow;
     }
   }
@@ -96,6 +153,15 @@ class RestaurantProxy {
         throw Exception('Failed to post review: ${response.statusCode}');
       }
     } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
       debugPrint('Error sending review: $e');
       rethrow;
     }
