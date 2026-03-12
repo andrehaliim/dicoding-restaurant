@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant/models/restaurant-detail-model.dart';
+import 'package:provider/provider.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
+import 'package:restaurant/providers/restaurant-provider.dart';
 import 'package:restaurant/proxys/restaurant-proxy.dart';
 
 import '../components/menu-items.dart';
@@ -15,7 +16,6 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  late Future<RestaurantDetailModel> future;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _reviewController = TextEditingController();
   final FocusNode _nameFocusNode = FocusNode();
@@ -25,7 +25,9 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   void initState() {
-    future = RestaurantProxy().getRestaurantDetail(context, widget.restaurant.id);
+    Future.microtask(() {
+      context.read<RestaurantProvider>().fetchRestaurantDetail(widget.restaurant.id);
+    });
     super.initState();
   }
 
@@ -93,22 +95,26 @@ class _DetailPageState extends State<DetailPage> {
             ),
           ),
 
-          FutureBuilder<RestaurantDetailModel>(
-            future: future,
-            builder: (BuildContext context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+          Consumer<RestaurantProvider>(
+            builder: (context, provider, child) {
+              if (provider.isDetailLoading) {
                 return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
               }
 
-              if (snapshot.hasError) {
-                return SliverFillRemaining(child: Center(child: Text('Error: ${snapshot.error}')));
+              if (provider.detailError != null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(provider.detailError!)),
+                  );
+                });
+                return SliverFillRemaining(child: Center(child: Text('Error: ${provider.detailError}')));
               }
 
-              if (!snapshot.hasData) {
+              if (provider.detail == null) {
                 return const SliverFillRemaining(child: Center(child: Text('No detail available')));
               }
 
-              final data = snapshot.data!;
+              final data = provider.detail!;
               return SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -186,41 +192,42 @@ class _DetailPageState extends State<DetailPage> {
                                           final name = _nameController.text;
                                           final review = _reviewController.text;
 
-                                          if (name.isNotEmpty && review.isNotEmpty) {
-                                            loading();
-                                            _nameFocusNode.unfocus();
-                                            _reviewFocusNode.unfocus();
+                                          if (name.isEmpty || review.isEmpty) return;
 
-                                            try {
-                                              final updatedReviews = await RestaurantProxy().sendReview(
-                                                context,
-                                                data.id,
-                                                name,
-                                                review,
+                                          loading();
+                                          _nameFocusNode.unfocus();
+                                          _reviewFocusNode.unfocus();
+
+                                          try {
+                                            final updatedReviews = await RestaurantProxy().sendReview(
+                                              context,
+                                              data.id,
+                                              name,
+                                              review,
+                                            );
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Review posted successfully!')),
                                               );
 
-                                              if (mounted) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(content: Text('Review posted successfully!')),
-                                                );
-                                                _nameController.clear();
-                                                _reviewController.clear();
+                                              _nameController.clear();
+                                              _reviewController.clear();
 
-                                                setState(() {
-                                                  data.customerReviews = updatedReviews;
-                                                });
-                                              }
-                                            } catch (e) {
-                                              if (mounted) {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                                              }
-                                            } finally {
-                                              if (mounted) loading();
+                                              setState(() {
+                                                data.customerReviews = updatedReviews;
+                                              });
                                             }
+                                          } catch (e) {
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                            }
+                                          } finally {
+                                            if (mounted) loading();
                                           }
                                         },
+
                                   child: isSending
                                       ? const SizedBox(
                                           height: 20,

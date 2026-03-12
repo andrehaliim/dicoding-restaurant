@@ -47,41 +47,26 @@ class RestaurantProxy {
     }
   }
 
-  Future<RestaurantDetailModel> getRestaurantDetail(BuildContext context, String id) async {
+  Future<RestaurantDetailModel> getRestaurantDetail(String id) async {
     String url = '$baseUrl/detail/$id';
 
-    try {
-      var response = await http.get(Uri.parse(url));
+    var response = await http.get(Uri.parse(url));
 
-      ProxyLogger.log(
-        ProxyLogModel(
-          url: url,
-          params: {"id": id},
-          statusCode: response.statusCode,
-          response: response.body,
-          time: DateTime.now(),
-        ),
-      );
+    ProxyLogger.log(
+      ProxyLogModel(
+        url: url,
+        params: {"id": id},
+        statusCode: response.statusCode,
+        response: response.body,
+        time: DateTime.now(),
+      ),
+    );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-
-        return RestaurantDetailModel.fromJson(data['restaurant']);
-      } else {
-        throw Exception('Failed to fetch detail: ${response.statusCode}');
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-      debugPrint('Error fetching detail: $e');
-      rethrow;
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      return RestaurantDetailModel.fromJson(data['restaurant']);
+    } else {
+      throw Exception('Failed to fetch detail: ${response.statusCode}');
     }
   }
 
