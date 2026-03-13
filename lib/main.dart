@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/pages/detail-page.dart';
+import 'package:restaurant/pages/favorite-page.dart';
 import 'package:restaurant/pages/home-page.dart';
 import 'package:restaurant/pages/search-page.dart';
 import 'package:restaurant/providers/restaurant-provider.dart';
 import 'package:restaurant/providers/theme-provider.dart';
+import 'package:restaurant/proxys/db-proxy.dart';
 import 'package:restaurant/theme.dart';
 import 'package:restaurant/util.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await DbProxy().database;
+
   runApp(
     MultiProvider(
       providers: [
@@ -57,6 +63,7 @@ class MyApp extends StatelessWidget {
           return DetailPage(restaurant: data);
         },
         '/search': (context) => const SearchPage(),
+        '/favorite': (context) => const FavoritePage(),
       },
     );
   }

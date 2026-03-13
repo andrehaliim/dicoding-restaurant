@@ -3,7 +3,13 @@ import 'package:restaurant/models/restaurant-detail-model.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/proxys/restaurant-proxy.dart';
 
+import '../proxys/db-proxy.dart';
+
 class RestaurantProvider extends ChangeNotifier {
+  RestaurantProvider() {
+    fetchFavoriteRestaurants();
+  }
+
   List<RestaurantListModel> _restaurants = [];
   bool _isLoading = false;
   String? _error;
@@ -98,5 +104,45 @@ class RestaurantProvider extends ChangeNotifier {
 
     _isSendingReview = false;
     notifyListeners();
+  }
+
+  bool _isFavorite = false;
+  bool get isFavorite => _isFavorite;
+
+  List<RestaurantListModel> _favoriteRestaurants = [];
+  List<RestaurantListModel> get favoriteRestaurants => _favoriteRestaurants;
+
+  Future<void> checkFavoriteStatus(String restaurantId) async {
+    _isFavorite = await DbProxy().isFavorite(restaurantId);
+    notifyListeners();
+  }
+
+  Future<void> toggleFavorite(RestaurantListModel restaurant) async {
+    try {
+      final exists = await DbProxy().isFavorite(restaurant.id);
+
+      if (exists) {
+        await DbProxy().removeFavorite(restaurant.id);
+        _isFavorite = false;
+      } else {
+        await DbProxy().insertFavorite(restaurant);
+        _isFavorite = true;
+      }
+
+      await fetchFavoriteRestaurants();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error toggling favorite: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> fetchFavoriteRestaurants() async {
+    try {
+      _favoriteRestaurants = await DbProxy().getFavorites();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error fetching favorites: $e");
+    }
   }
 }

@@ -23,7 +23,9 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     Future.microtask(() {
-      context.read<RestaurantProvider>().fetchRestaurantDetail(widget.restaurant.id);
+      final provider = context.read<RestaurantProvider>();
+      provider.fetchRestaurantDetail(widget.restaurant.id);
+      provider.checkFavoriteStatus(widget.restaurant.id);
     });
     super.initState();
   }
@@ -255,6 +257,17 @@ class _DetailPageState extends State<DetailPage> {
             },
           ),
         ],
+      ),
+      floatingActionButton: Consumer<RestaurantProvider>(
+        builder: (context, provider, child) {
+          return FloatingActionButton(
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,onPressed: () => provider.toggleFavorite(widget.restaurant),
+            child: Icon(
+              provider.isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          );
+        },
       ),
     );
   }
