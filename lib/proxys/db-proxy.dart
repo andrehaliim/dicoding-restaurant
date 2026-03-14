@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
+import 'package:sqflite_dev/sqflite_dev.dart';
 
 class DbProxy {
   static DbProxy? _instance;
@@ -14,6 +16,13 @@ class DbProxy {
 
   Future<Database?> get database async {
     _database ??= await _initDb();
+    if (kDebugMode && _database != null) {
+      _database!.enableWorkbench(
+        webDebug: !kReleaseMode,
+        webDebugPort: 8080,
+        webDebugName: 'MyAppDB',
+      );
+    }
     return _database;
   }
 
@@ -57,14 +66,18 @@ class DbProxy {
     final db = await database;
     List<Map<String, dynamic>> results = await db!.query(_tableName);
 
-    return results.map((res) => RestaurantListModel(
-      id: res['restaurant_id'],
-      name: res['name'],
-      description: res['description'],
-      pictureId: res['picture_id'],
-      city: res['city'],
-      rating: res['rating']?.toDouble(),
-    )).toList();
+    return results
+        .map(
+          (res) => RestaurantListModel(
+            id: res['restaurant_id'],
+            name: res['name'],
+            description: res['description'],
+            pictureId: res['picture_id'],
+            city: res['city'],
+            rating: res['rating']?.toDouble(),
+          ),
+        )
+        .toList();
   }
 
   Future<void> removeFavorite(String restaurantId) async {
