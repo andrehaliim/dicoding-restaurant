@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant/components/restaurant-list-item.dart';
 import 'package:restaurant/providers/restaurant-provider.dart';
-import '../components/setting-drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,28 +24,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      endDrawer: const SettingDrawer(),
       body: Consumer<RestaurantProvider>(
         builder: (context, provider, child) {
           return CustomScrollView(
             slivers: [
-              SliverAppBar.medium(
-                title: Row(
-                  children: [
-                    const Text('Restaurant', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Spacer(),
-                    IconButton(icon: const Icon(Icons.favorite, color: Colors.redAccent), onPressed: () => Navigator.pushNamed(context, '/favorite')),
-                  ],
-                ),
-                actions: [
-                  IconButton(icon: const Icon(Icons.search), onPressed: () => Navigator.pushNamed(context, '/search')),
-                  Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.settings),
-                      onPressed: () => Scaffold.of(context).openEndDrawer(),
-                    ),
-                  ),
-                ],
+              const SliverAppBar.medium(
+                title: Text('Restaurant', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
 
               if (provider.isLoading)

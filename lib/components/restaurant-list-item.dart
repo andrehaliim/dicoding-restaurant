@@ -24,13 +24,13 @@ class RestaurantListItem extends StatelessWidget {
         ),
         color: colorScheme.surfaceContainerLow,
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, '/detail', arguments: data);
-          },
-          child: Stack(
-            children: [
-              Row(
+        child: Stack(
+          children: [
+            InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/detail', arguments: data);
+              },
+              child: Row(
                 children: [
                   Hero(
                     tag: data.id,
@@ -76,15 +76,19 @@ class RestaurantListItem extends StatelessWidget {
                   ),
                 ],
               ),
-              // 2. Positioned Favorite Indicator
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Consumer<RestaurantProvider>(
-                  builder: (context, provider, child) {
-                    final isFav = provider.favoriteRestaurants.any((fav) => fav.id == data.id);
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Consumer<RestaurantProvider>(
+                builder: (context, provider, child) {
+                  final isFav = provider.favoriteRestaurants.any((fav) => fav.id == data.id);
 
-                    return Container(
+                  return GestureDetector(
+                    onTap: () {
+                      provider.toggleFavorite(data);
+                    },
+                    child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: colorScheme.surface.withAlpha(50),
@@ -95,12 +99,12 @@ class RestaurantListItem extends StatelessWidget {
                         size: 18,
                         color: !isFav ? Colors.grey : Colors.red,
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

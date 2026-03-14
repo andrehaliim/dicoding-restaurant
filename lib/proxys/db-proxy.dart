@@ -58,7 +58,7 @@ class DbProxy {
     List<Map<String, dynamic>> results = await db!.query(_tableName);
 
     return results.map((res) => RestaurantListModel(
-      id: res['restaurant_id'], // Use the stored restaurant_id
+      id: res['restaurant_id'],
       name: res['name'],
       description: res['description'],
       pictureId: res['picture_id'],

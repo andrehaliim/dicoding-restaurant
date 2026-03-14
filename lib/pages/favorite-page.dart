@@ -43,11 +43,11 @@ class _FavoritePageState extends State<FavoritePage> {
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                             (context, index) {
-                          final data = provider.restaurants[index];
+                          final data = provider.favoriteRestaurants[index];
 
                           return RestaurantListItem(data: data);
                         },
-                        childCount: provider.restaurants.length,
+                        childCount: provider.favoriteRestaurants.length,
                       ),
                     ),
                   ),

@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 import 'package:restaurant/pages/detail-page.dart';
 import 'package:restaurant/pages/favorite-page.dart';
-import 'package:restaurant/pages/home-page.dart';
 import 'package:restaurant/pages/search-page.dart';
+import 'package:restaurant/pages/main-navigation.dart';
 import 'package:restaurant/providers/restaurant-provider.dart';
 import 'package:restaurant/providers/theme-provider.dart';
 import 'package:restaurant/proxys/db-proxy.dart';
@@ -19,12 +19,8 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => RestaurantProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => RestaurantProvider()),
       ],
       child: const MyApp(),
     ),
@@ -57,9 +53,10 @@ class MyApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
       initialRoute: '/',
       routes: {
-        '/': (context) => const HomePage(),
+        '/': (context) => const MainNavigation(),
         '/detail': (context) {
-          final data = ModalRoute.of(context)!.settings.arguments as RestaurantListModel;
+          final data =
+              ModalRoute.of(context)!.settings.arguments as RestaurantListModel;
           return DetailPage(restaurant: data);
         },
         '/search': (context) => const SearchPage(),

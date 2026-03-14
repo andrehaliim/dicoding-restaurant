@@ -261,10 +261,10 @@ class _DetailPageState extends State<DetailPage> {
       floatingActionButton: Consumer<RestaurantProvider>(
         builder: (context, provider, child) {
           return FloatingActionButton(
-            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,onPressed: () => provider.toggleFavorite(widget.restaurant),
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,onPressed: () => provider.toggleFavorite(widget.restaurant),
             child: Icon(
               provider.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: Theme.of(context).colorScheme.error,
             ),
           );
         },

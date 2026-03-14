@@ -54,8 +54,10 @@ class _SearchPageState extends State<SearchPage> {
                   decoration: InputDecoration(
                     hintText: 'Search restaurant name...',
                     prefixIcon: const Icon(Icons.search),
-                    suffixIcon:
-                    IconButton(icon: const Icon(Icons.send), onPressed: _onSearch),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: _onSearch,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),
@@ -83,7 +85,6 @@ class _SearchPageState extends State<SearchPage> {
           else
             Consumer<RestaurantProvider>(
               builder: (context, provider, child) {
-
                 if (provider.isSearching) {
                   return const SliverFillRemaining(
                     child: Center(child: CircularProgressIndicator()),
@@ -107,12 +108,10 @@ class _SearchPageState extends State<SearchPage> {
                 return SliverPadding(
                   padding: const EdgeInsets.all(16),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                        final data = restaurants[index];
-                        return RestaurantListItem(data: data);
-                      },    childCount: restaurants.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final data = restaurants[index];
+                      return RestaurantListItem(data: data);
+                    }, childCount: restaurants.length),
                   ),
                 );
               },
