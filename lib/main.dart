@@ -10,16 +10,18 @@ import 'package:restaurant/providers/theme-provider.dart';
 import 'package:restaurant/proxys/db-proxy.dart';
 import 'package:restaurant/theme.dart';
 import 'package:restaurant/util.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await DbProxy().database;
+  final prefs = await SharedPreferences.getInstance();
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
       ],
       child: const MyApp(),
