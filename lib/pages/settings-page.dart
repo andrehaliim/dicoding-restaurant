@@ -20,52 +20,56 @@ class SettingsPage extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: ListView(
+      body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        children: [
-          ListTile(
-            leading: const Icon(Icons.brightness_6_outlined),
-            title: const Text('Dark Mode'),
-            trailing: const ThemeSwitcher(),
-          ),
-          const Divider(),
-          Consumer<SchedulingProvider>(
-            builder: (context, scheduled, _) {
-              return ListTile(
-                leading: const Icon(Icons.schedule_outlined),
-                title: const Text('Lunch Reminder'),
-                subtitle: const Text('Enable Lunch Reminder at 11:00 AM'),
-                trailing: Switch.adaptive(
-                  value: scheduled.isScheduled,
-                  onChanged: (value) async {
-                    await scheduled.setScheduled(value);
-                  },
+        child: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.brightness_6_outlined),
+              title: const Text('Dark Mode'),
+              trailing: const ThemeSwitcher(),
+            ),
+            const Divider(),
+            Consumer<SchedulingProvider>(
+              builder: (context, scheduled, _) {
+                return ListTile(
+                  leading: const Icon(Icons.schedule_outlined),
+                  title: const Text('Lunch Reminder'),
+                  subtitle: const Text('Enable Lunch Reminder at 11:00 AM'),
+                  trailing: Switch.adaptive(
+                    value: scheduled.isScheduled,
+                    onChanged: (value) async {
+                      await scheduled.setScheduled(value);
+                    },
+                  ),
+                );
+              },
+            ),
+            const Divider(),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                "App Accent Color",
+                style: textTheme.titleMedium?.copyWith(
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.bold,
                 ),
-              );
-            },
-          ),
-          const Divider(),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              "App Accent Color",
-              style: textTheme.titleMedium?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          const AccentColorSwitcher(),
-          const SizedBox(height: 32),
-          Center(
-            child: Text(
-              '@andrehaliim',
-              style: textTheme.bodySmall?.copyWith(color: colorScheme.outline),
+            const SizedBox(height: 12),
+            const AccentColorSwitcher(),
+            Spacer(),
+            Center(
+              child: Text(
+                '@andrehaliim',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.outline,
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
