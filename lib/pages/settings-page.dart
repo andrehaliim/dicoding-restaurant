@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:restaurant/components/accent-color-switcher.dart';
 import 'package:restaurant/components/theme-switcher.dart';
+import 'package:restaurant/helpers/notification-helper.dart';
+import 'package:restaurant/providers/scheduling-provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -12,7 +15,10 @@ class SettingsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Settings',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -22,12 +28,32 @@ class SettingsPage extends StatelessWidget {
             title: const Text('Dark Mode'),
             trailing: const ThemeSwitcher(),
           ),
+          const Divider(),
+          Consumer<SchedulingProvider>(
+            builder: (context, scheduled, _) {
+              return ListTile(
+                leading: const Icon(Icons.schedule_outlined),
+                title: const Text('Lunch Reminder'),
+                subtitle: const Text('Enable Lunch Reminder at 11:00 AM'),
+                trailing: Switch.adaptive(
+                  value: scheduled.isScheduled,
+                  onChanged: (value) async {
+                    await scheduled.setScheduled(value);
+                  },
+                ),
+              );
+            },
+          ),
+          const Divider(),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
               "App Accent Color",
-              style: textTheme.titleMedium?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
+              style: textTheme.titleMedium?.copyWith(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 12),

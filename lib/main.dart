@@ -7,14 +7,17 @@ import 'package:restaurant/pages/search-page.dart';
 import 'package:restaurant/pages/main-navigation.dart';
 import 'package:restaurant/providers/restaurant-provider.dart';
 import 'package:restaurant/providers/theme-provider.dart';
+import 'package:restaurant/providers/scheduling-provider.dart';
 import 'package:restaurant/proxys/db-proxy.dart';
 import 'package:restaurant/theme.dart';
 import 'package:restaurant/util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:restaurant/helpers/notification-helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await NotificationHelper().init();
   await DbProxy().database;
   final prefs = await SharedPreferences.getInstance();
 
@@ -23,6 +26,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
+        ChangeNotifierProvider(create: (_) => SchedulingProvider(prefs)),
       ],
       child: const MyApp(),
     ),
