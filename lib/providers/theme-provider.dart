@@ -18,11 +18,9 @@ class ThemeProvider extends ChangeNotifier {
   bool get isDarkMode => _themeMode == ThemeMode.dark;
 
   void _loadFromPrefs() {
-    // Load theme mode
     final isDark = _prefs.getBool(_themeKey);
     _themeMode = (isDark ?? false) ? ThemeMode.dark : ThemeMode.light;
 
-    // Load seed color
     final colorValue = _prefs.getInt(_colorKey);
     _seedColor = colorValue != null ? Color(colorValue) : Colors.blueGrey;
   }
