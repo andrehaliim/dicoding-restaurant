@@ -6,7 +6,10 @@ import 'package:restaurant/proxys/restaurant-proxy.dart';
 import '../proxys/db-proxy.dart';
 
 class RestaurantProvider extends ChangeNotifier {
-  RestaurantProvider() {
+  final RestaurantProxy apiService;
+
+  RestaurantProvider({RestaurantProxy? apiService})
+      : apiService = apiService ?? RestaurantProxy() {
     fetchFavoriteRestaurants();
   }
 
@@ -18,12 +21,13 @@ class RestaurantProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  Future<void> fetchRestaurants(BuildContext context) async {
+  Future<void> fetchRestaurants([BuildContext? context]) async {
     _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
-      _restaurants = await RestaurantProxy().getRestaurantList(context);
+      _restaurants = await apiService.getRestaurantList(context);
     } catch (e) {
       _error = e.toString();
     }

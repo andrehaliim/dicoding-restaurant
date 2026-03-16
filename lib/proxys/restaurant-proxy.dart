@@ -8,7 +8,7 @@ import 'package:restaurant/models/restaurant-detail-model.dart';
 import 'package:restaurant/models/restaurant-list-model.dart';
 
 class RestaurantProxy {
-  Future<List<RestaurantListModel>> getRestaurantList(BuildContext context) async {
+  Future<List<RestaurantListModel>> getRestaurantList([BuildContext? context]) async {
     String url = '$baseUrl/list';
 
     try {
@@ -33,13 +33,9 @@ class RestaurantProxy {
         throw Exception('Failed to load restaurants: ${response.statusCode}');
       }
     } catch (e) {
-      if (context.mounted) {
+      if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
+          SnackBar(content: Text(e.toString())),
         );
       }
       debugPrint('Error fetching restaurants: $e');
