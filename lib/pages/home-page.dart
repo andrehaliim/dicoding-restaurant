@@ -46,7 +46,10 @@ class _HomePageState extends State<HomePage> {
                           (context, index) {
                         final data = provider.restaurants[index];
 
-                        return RestaurantListItem(data: data);
+                        return RestaurantListItem(
+                          data: data,
+                          tagSuffix: '_home',
+                        );
                       },
                       childCount: provider.restaurants.length,
                     ),

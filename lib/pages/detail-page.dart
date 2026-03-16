@@ -8,7 +8,8 @@ import '../constants.dart';
 
 class DetailPage extends StatefulWidget {
   final RestaurantListModel restaurant;
-  const DetailPage({super.key, required this.restaurant});
+  final String suffix;
+  const DetailPage({super.key, required this.restaurant, required this.suffix});
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -70,7 +71,7 @@ class _DetailPageState extends State<DetailPage> {
                     fit: StackFit.expand,
                     children: [
                       Hero(
-                        tag: widget.restaurant.id,
+                        tag: widget.suffix,
                         child: Image.network(
                           '$baseUrl/images/large/${widget.restaurant.pictureId}',
                           fit: BoxFit.cover,

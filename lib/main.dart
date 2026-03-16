@@ -61,9 +61,15 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const MainNavigation(),
         '/detail': (context) {
-          final data =
-              ModalRoute.of(context)!.settings.arguments as RestaurantListModel;
-          return DetailPage(restaurant: data);
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
+          final restaurant = args['restaurant'] as RestaurantListModel;
+          final heroTag = args['suffix'] as String;
+
+          return DetailPage(
+            restaurant: restaurant,
+            suffix: heroTag,
+          );
         },
         '/search': (context) => const SearchPage(),
         '/favorite': (context) => const FavoritePage(),

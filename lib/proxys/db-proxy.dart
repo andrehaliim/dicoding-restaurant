@@ -16,13 +16,6 @@ class DbProxy {
 
   Future<Database?> get database async {
     _database ??= await _initDb();
-    if (kDebugMode && _database != null) {
-      _database!.enableWorkbench(
-        webDebug: !kReleaseMode,
-        webDebugPort: 8080,
-        webDebugName: 'MyAppDB',
-      );
-    }
     return _database;
   }
 
@@ -32,22 +25,31 @@ class DbProxy {
     var path = await getDatabasesPath();
     var dbPath = join(path, 'restaurant_db.db');
 
-    return await openDatabase(
+    final db = await openDatabase(
       dbPath,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''CREATE TABLE $_tableName (
-          id INTEGER PRIMARY KEY AUTOINCREMENT, 
-          restaurant_id TEXT UNIQUE,
-          name TEXT,
-          description TEXT,
-          picture_id TEXT,
-          city TEXT,
-          rating DOUBLE
-        )
-      ''');
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        restaurant_id TEXT UNIQUE,
+        name TEXT,
+        description TEXT,
+        picture_id TEXT,
+        city TEXT,
+        rating DOUBLE
+      )''');
       },
     );
+
+    if (kDebugMode) {
+      db.enableWorkbench(
+        webDebug: true,
+        webDebugPort: 8080,
+        webDebugName: 'RestaurantDB',
+      );
+    }
+
+    return db;
   }
 
   Future<void> insertFavorite(RestaurantListModel restaurant) async {

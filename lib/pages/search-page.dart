@@ -110,7 +110,10 @@ class _SearchPageState extends State<SearchPage> {
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final data = restaurants[index];
-                      return RestaurantListItem(data: data);
+                      return RestaurantListItem(
+                        data: data,
+                        tagSuffix: '_search',
+                      );
                     }, childCount: restaurants.length),
                   ),
                 );

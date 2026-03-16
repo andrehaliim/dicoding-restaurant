@@ -45,7 +45,10 @@ class _FavoritePageState extends State<FavoritePage> {
                             (context, index) {
                           final data = provider.favoriteRestaurants[index];
 
-                          return RestaurantListItem(data: data);
+                          return RestaurantListItem(
+                            data: data,
+                            tagSuffix: '_fav',
+                          );
                         },
                         childCount: provider.favoriteRestaurants.length,
                       ),

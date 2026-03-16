@@ -6,8 +6,12 @@ import 'package:restaurant/providers/restaurant-provider.dart';
 
 class RestaurantListItem extends StatelessWidget {
   final RestaurantListModel data;
+  final String tagSuffix;
 
-  const RestaurantListItem({super.key, required this.data});
+  const RestaurantListItem({    super.key,
+    required this.data,
+    this.tagSuffix = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +32,16 @@ class RestaurantListItem extends StatelessWidget {
           children: [
             InkWell(
               onTap: () {
-                Navigator.pushNamed(context, '/detail', arguments: data);
+                Navigator.pushNamed(
+                    context,
+                    '/detail',
+                    arguments: {'restaurant': data, 'suffix': '${data.id}$tagSuffix'}
+                );
               },
               child: Row(
                 children: [
                   Hero(
-                    tag: data.id,
+                    tag: '${data.id}$tagSuffix',
                     child: Image.network(
                       '$baseUrl/images/small/${data.pictureId}',
                       width: 100,
