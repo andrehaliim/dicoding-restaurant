@@ -18,35 +18,70 @@ void main() {
   });
 
   group('Restaurant Provider Test Scenarios', () {
-
     test('SKENARIO 1: Memastikan state awal provider harus didefinisikan.', () {
       expect(provider.isLoading, false);
       expect(provider.restaurants, []);
       expect(provider.error, null);
     });
 
-    test('SKENARIO 2: Memastikan harus mengembalikan daftar restoran ketika pengambilan data API berhasil.', () async {
-      final mockResponse = [
-        RestaurantListModel(id: "1", name: "Test Resto", city: "Bdg", rating: 4.5, pictureId: "1", description: "desc")
-      ];
-      when(mockProxy.getRestaurantList(any)).thenAnswer((_) async => mockResponse);
+    test(
+      'SKENARIO 2: Memastikan harus mengembalikan daftar restoran ketika pengambilan data API berhasil.',
+      () async {
+        final mockResponse = [
+          RestaurantListModel(
+            id: "1",
+            name: "Test Resto",
+            city: "Bdg",
+            rating: 4.5,
+            pictureId: "1",
+            description: "desc",
+          ),
+        ];
+        when(
+          mockProxy.getRestaurantList(any),
+        ).thenAnswer((_) async => mockResponse);
 
-      await provider.fetchRestaurants(null);
+        await provider.fetchRestaurants(null);
 
-      expect(provider.isLoading, false);
-      expect(provider.restaurants.isNotEmpty, true);
-      expect(provider.restaurants[0].name, "Test Resto");
-    });
+        expect(provider.isLoading, false);
+        expect(provider.restaurants.isNotEmpty, true);
+        expect(provider.restaurants[0].name, "Test Resto");
+      },
+    );
 
-    test('SKENARIO 3: Memastikan harus mengembalikan kesalahan ketika pengambilan data API gagal.', () async {
-      when(mockProxy.getRestaurantList(any)).thenThrow(Exception('No Internet'));
+    test(
+      'SKENARIO 3: Memastikan harus mengembalikan kesalahan ketika pengambilan data API gagal.',
+      () async {
+        when(
+          mockProxy.getRestaurantList(any),
+        ).thenThrow(Exception('No Internet'));
 
-      await provider.fetchRestaurants(null);
+        await provider.fetchRestaurants(null);
 
-      expect(provider.isLoading, false);
-      expect(provider.restaurants, []);
-      expect(provider.error != null, true);
-      expect(provider.error, contains('Exception: No Internet'));
+        expect(provider.isLoading, false);
+        expect(provider.restaurants, []);
+        expect(provider.error != null, true);
+        expect(provider.error, contains('Exception: No Internet'));
+      },
+    );
+  });
+
+  group('Model Parsing Unit Tests', () {
+    test('Should parse JSON to RestaurantListModel correctly', () {
+      final json = {
+        "id": "1",
+        "name": "Test Resto",
+        "description": "Desc",
+        "pictureId": "2",
+        "city": "Bdg",
+        "rating": 4.5
+      };
+
+      final result = RestaurantListModel.fromJson(json);
+
+      expect(result.id, "1");
+      expect(result.name, "Test Resto");
+      expect(result.rating, 4.5);
     });
   });
 }

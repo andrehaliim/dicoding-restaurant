@@ -37,21 +37,25 @@ class _MainNavigationState extends State<MainNavigation> {
         },
         destinations: const [
           NavigationDestination(
+            key: Key('home_nav_button'),
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Home',
           ),
           NavigationDestination(
+            key: Key('search_nav_button'),
             icon: Icon(Icons.search_outlined),
             selectedIcon: Icon(Icons.search),
             label: 'Search',
           ),
           NavigationDestination(
+            key: Key('favorite_nav_button'),
             icon: Icon(Icons.favorite_outline),
             selectedIcon: Icon(Icons.favorite),
             label: 'Favorite',
           ),
           NavigationDestination(
+            key: Key('settings_nav_button'),
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
             label: 'Setting',

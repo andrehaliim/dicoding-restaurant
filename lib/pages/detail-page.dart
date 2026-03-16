@@ -50,8 +50,17 @@ class _DetailPageState extends State<DetailPage> {
         slivers: [
           SliverAppBar.large(
             expandedHeight: 300,
-            leading: Container(),
-            leadingWidth: 0,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                backgroundColor: colorScheme.surface.withAlpha(70),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                  tooltip: 'Back',
+                ),
+              ),
+            ),
             foregroundColor: colorScheme.onSurface,
             flexibleSpace: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
