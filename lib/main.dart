@@ -5,6 +5,7 @@ import 'package:restaurant/pages/detail-page.dart';
 import 'package:restaurant/pages/favorite-page.dart';
 import 'package:restaurant/pages/search-page.dart';
 import 'package:restaurant/pages/main-navigation.dart';
+import 'package:restaurant/providers/navigation-provider.dart';
 import 'package:restaurant/providers/restaurant-provider.dart';
 import 'package:restaurant/providers/theme-provider.dart';
 import 'package:restaurant/providers/scheduling-provider.dart';
@@ -63,6 +64,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
         ChangeNotifierProvider(create: (_) => SchedulingProvider(prefs)),
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
       ],
       child: const MyApp(),
     ),
