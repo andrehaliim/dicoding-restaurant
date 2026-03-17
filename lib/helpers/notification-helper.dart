@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class NotificationHelper {
   static final NotificationHelper _instance = NotificationHelper._internal();
@@ -19,8 +19,9 @@ class NotificationHelper {
     }
 
     try {
-      var initializationSettingsAndroid =
-      const AndroidInitializationSettings('app_icon');
+      var initializationSettingsAndroid = const AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
 
       var initializationSettingsIOS = const DarwinInitializationSettings(
         requestAlertPermission: false,
@@ -43,62 +44,59 @@ class NotificationHelper {
 
       debugPrint("Notification Helper initialized successfully");
     } catch (e) {
-      debugPrint("Notification Helper failed to initialize (Normal for tests): $e");
+      debugPrint(
+        "Notification Helper failed to initialize (Normal for tests): $e",
+      );
     }
   }
 
   Future<bool> requestPermission() async {
-    final status = await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestNotificationsPermission();
-    return status ?? false;
+    if (Platform.isAndroid) {
+      final androidImplementation = flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      if (androidImplementation != null) {
+        final bool? granted = await androidImplementation.requestNotificationsPermission();
+        return granted ?? false;
+      }
+    }
+    return false;
   }
 
-  Future<void> scheduleDailyNotification({
+  Future<void> showNotification({
     required int id,
     required String title,
     required String body,
-    required int hour,
-    required int minute,
+    required String payload,
   }) async {
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id: id,
-      title: title,
-      body: body,
-      scheduledDate: _nextInstanceOfTime(hour, minute),
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'scheduled_channel_id',
-          'Scheduled Notifications',
-          channelDescription: 'Channel for scheduled daily notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
+    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+      'restaurant_channel_id',
+      'Restaurant Notifications',
+      channelDescription: 'Daily restaurant recommendations',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+      icon: '@mipmap/ic_launcher',
     );
+
+    var platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    try {
+      await flutterLocalNotificationsPlugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: platformChannelSpecifics,
+        payload: payload,
+      );
+    } catch (e) {
+      debugPrint("Error showing notification: $e");
+    }
   }
 
   Future<void> cancelNotification(int id) async {
     await flutterLocalNotificationsPlugin.cancel(id: id);
-  }
-
-  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-    return scheduledDate;
   }
 }

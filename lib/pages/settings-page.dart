@@ -33,14 +33,25 @@ class SettingsPage extends StatelessWidget {
             Consumer<SchedulingProvider>(
               builder: (context, scheduled, _) {
                 return ListTile(
-                  leading: const Icon(Icons.schedule_outlined),
-                  title: const Text('Lunch Reminder'),
-                  subtitle: const Text('Enable Lunch Reminder at 11:00 AM'),
+                  title: const Text('Daily Recommendation'),
+                  subtitle: const Text('Get a random restaurant at 09:00 AM'),
                   trailing: Switch.adaptive(
                     value: scheduled.isScheduled,
-                    onChanged: (value) async {
-                      await scheduled.setScheduled(value);
-                    },
+                      onChanged: (bool value) async {
+                        if (value) {
+                          final bool isGranted = await NotificationHelper().requestPermission();
+
+                          if (isGranted) {
+                            await scheduled.scheduledRecommendation(true);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Notification permission is required to enable this feature"))
+                            );
+                          }
+                        } else {
+                          await scheduled.scheduledRecommendation(false);
+                        }
+                      }
                   ),
                 );
               },

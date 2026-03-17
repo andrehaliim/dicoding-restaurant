@@ -1,45 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant/helpers/notification-helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:workmanager/workmanager.dart';
 
 class SchedulingProvider extends ChangeNotifier {
-  static const String _schedulingKey = 'scheduled_notification';
-  final SharedPreferences _prefs;
-  bool _isScheduled;
+  SharedPreferences prefs;  SchedulingProvider(this.prefs) {
+    _isScheduled = prefs.getBool('daily_notif') ?? false;
+  }
 
-  SchedulingProvider(this._prefs)
-    : _isScheduled = _prefs.getBool(_schedulingKey) ?? false;
-
+  bool _isScheduled = false;
   bool get isScheduled => _isScheduled;
 
-  Future<void> setScheduled(bool value) async {
-    if (value) {
-      final isPermissionGranted = await NotificationHelper()
-          .requestPermission();
-      if (!isPermissionGranted) {
-        _isScheduled = false;
-        notifyListeners();
-        debugPrint('Notification permission denied');
-        return;
-      }
-    }
+  static const String taskName = "daily_restaurant_recommendation";
 
+  Future<void> scheduledRecommendation(bool value) async {
     _isScheduled = value;
-    notifyListeners();
-    await _prefs.setBool(_schedulingKey, value);
+    await prefs.setBool('daily_notif', value);
 
-    if (value) {
-      debugPrint('Scheduled Notification Activated at 11:00 AM');
-      await NotificationHelper().scheduleDailyNotification(
-        id: 1,
-        title: 'Lunch Reminder',
-        body: "It's 11 AM, time to have lunch!",
-        hour: 11,
-        minute: 00,
+    if (_isScheduled) {
+      debugPrint('Scheduled recommendation turned on');
+      final now = DateTime.now();
+      final nineAM = DateTime(now.year, now.month, now.day, 11, 00, 0);
+      final initialDelay = nineAM.isAfter(now)
+          ? nineAM.difference(now)
+          : nineAM.add(const Duration(days: 1)).difference(now);
+
+      await Workmanager().registerPeriodicTask(
+        taskName,
+        taskName,
+        frequency: const Duration(days: 1),
+        initialDelay: initialDelay,
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+        ),
       );
     } else {
-      debugPrint('Scheduled Notification Deactivated');
-      await NotificationHelper().cancelNotification(1);
+      debugPrint('Scheduled recommendation turned off');
+      await Workmanager().cancelAll();
     }
+    notifyListeners();
   }
 }
